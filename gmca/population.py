@@ -1,8 +1,13 @@
 import numpy as np
+from abc import abstractproperty
 from abc import ABC, abstractmethod
 
 
 class IPopulation(ABC):
+
+	@abstractproperty
+	def chromosomes(self) -> list:
+		pass
 
 	@abstractmethod
 	def wfould_tour(self, w: int) -> tuple:
@@ -29,20 +34,24 @@ class Population(IPopulation):
 	def chromosomes(self) -> list:
 		return self._chromosomes
 
+
 	@chromosomes.setter
 	def chromosomes(self, chromosome) -> None:
 
 		if chromosome not in self:
 			self._chromosomes.append(chromosome)
+		
+		if len(self._chromosomes) > self.n_chromosomes:
+			self._chromosomes.sort()
+			self._chromosomes = self._chromosomes[:self.n_chromosomes]
 
 
 	def wfould_tour(self, w: int = 3) -> tuple:
 
-		indexes = np.random.choice(self.n_chromosomes, w, replace = False)
-		chromosomes = np.array(self._chromosomes)[indexes]
-
+		
+		chromosomes = np.random.choice(self._chromosomes, w,replace = False)
+		
 		chromosome1 = np.min(chromosomes)
-		index = np.random.choice(self.n_chromosomes, 1)[0]
-		chromosome2 = self._chromosomes[index]
+		chromosome2 = np.random.choice(self._chromosomes, 1)[0]
 
 		return (chromosome1, chromosome2)

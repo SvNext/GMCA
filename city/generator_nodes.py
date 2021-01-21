@@ -23,6 +23,8 @@ class GeneratorNodes(IGenerator):
 		self.n_side  = n_side
 		self.n_nodes = n_nodes
 
+		self.generate_nodes()
+
 
 	@property
 	def nodes(self) -> list:

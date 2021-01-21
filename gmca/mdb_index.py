@@ -1,12 +1,16 @@
 import numpy as np
 import networkx as nx
 from abc import ABC, abstractmethod
-
+from .chromosome import Chromosome
 
 class IMDBIndex(ABC):
 
 	@abstractmethod
-	def calculate_index(self, chromosome) -> float:
+	def split_clusters(self, chromosome: Chromosome) -> dict:
+		pass
+
+	@abstractmethod
+	def calculate_index(self, chromosome: Chromosome) -> float:
 		pass
 
 
@@ -26,21 +30,9 @@ class MDBIndex(IMDBIndex):
 				self.time_table[col, row] = value
 
 
-	def calculate_time(self, row: int, col: int) -> float:
-
-		path = nx.shortest_path(self.graph, source = row, 
-			target = col, weight = 'Time')
-
-		print(path)
-		return np.sum([self.graph.edges[i, j]['Time'] 
-			for i, j in zip(path[:-1], path[1:])])
-
-
-	def calculate_index(self, chromosome) -> float:
-
-
-		# split by clusters
-		medoids  = np.array(chromosome.medoids)
+	def split_clusters(self, chromosome: Chromosome) -> dict:
+		
+		medoids  = np.array(list(chromosome.medoids))
 		clusters = { medoid: [] for medoid in medoids }
 
 		for node in self.graph.nodes():
@@ -50,6 +42,29 @@ class MDBIndex(IMDBIndex):
 
 			clusters[medoid].append(node)
 
-		# calculate index
-		value = np.sum([np.sum(clusters[medoid]) for medoid in medoids])
-		return value
+		return clusters
+	
+
+	def calculate_time(self, row: int, col: int) -> float:
+
+		path = nx.shortest_path(self.graph, source = row, 
+			target = col, weight = 'Time')
+
+		return np.sum([self.graph.edges[i, j]['Time'] 
+			for i, j in zip(path[:-1], path[1:])])
+
+
+	def calculate_index(self, chromosome: Chromosome) -> float:
+
+		medoids  = np.array(list(chromosome.medoids))
+		cluster_data = self.split_clusters(chromosome)
+		
+		#S = { medoid: np.sum([self.time_table[node, medoid] 
+		#	for node in cluster_data[medoid] ]) for medoid in medoids}
+
+		#R = [np.max([(S[medoid1] + S[medoid2]) / self.time_table[medoid1, medoid2 ] 
+		#	for medoid2 in medoids if medoid1 != medoid2 ]) for medoid1 in medoids ]
+
+		#return np.mean(R)
+		return np.mean([np.sum([self.time_table[node, medoid] 
+			for node in cluster_data[medoid]]) for medoid in medoids])

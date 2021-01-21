@@ -1,7 +1,7 @@
 import numpy as np
 from abc import ABC
+from abc import abstractproperty
 from functools import total_ordering
-from abc import abstractproperty, abstractmethod
 
 
 class IChromosome(ABC):
@@ -19,11 +19,6 @@ class Chromosome(IChromosome):
 		# Sum of Intra-Cluster Variation
 		self._SICV = None
 		self.medoids = medoids
-
-
-	@property
-	def k(self) -> int:
-		return len(self.medoids)
 
 
 	@property

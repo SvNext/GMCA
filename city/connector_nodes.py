@@ -10,7 +10,7 @@ class IConnector:
 		pass
 
 	@abstractmethod
-	def connect_nodes(self, nodes: list) -> list:
+	def connect_nodes(self) -> None:
 		pass
 
 
@@ -21,6 +21,8 @@ class ConnectorNodes(IConnector):
 		self.nodes = nodes
 		self.radius = radius
 		self._connections = []
+
+		self.connect_nodes()
 
 
 	@property
